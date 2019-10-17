@@ -27,14 +27,7 @@ const Services = {
 	unionPay: <img src={unionPay} alt="" width="80" height="60"/>
 }
 
-const Input = ({ className,
-					id,
-					value,
-					pattern,
-					placeholder,
-					width,
-					onChange,
-					children }) =>
+const Input = ({ className, id, value, pattern, placeholder, width, onChange, children }) =>
 	<div className={className}>
 		<label htmlFor={id} className="card__label">
 			{children}
@@ -57,15 +50,7 @@ const Button = ({ className, type, onClick, children }) =>
 		{children}
 	</button>
 
-const FrontSide = ({ creditNum,
-							expires,
-							cardholder,
-							isAllFieldsFrontFilled,
-							paymentSystem,
-							changeActiveSide,
-							onChangeCardNum,
-							onChangeExpires,
-							onChangeCardholder }) =>
+const FrontSide = ({ creditNum, expires, cardholder, isAllFieldsFrontFilled, paymentSystem, changeActiveSide, onChangeCardNum, onChangeExpires, onChangeCardholder }) =>
 	<div className="card">
 		<div className="card__logo">
 			<img src={logo} alt="" width="120" height="100"/>
@@ -185,7 +170,6 @@ class Card extends Component {
 		this.onChangeExpires = this.onChangeExpires.bind(this);
 		this.onChangeCardholder = this.onChangeCardholder.bind(this);
 		this.onChangeCvcNum = this.onChangeCvcNum.bind(this);
-		this.onSubmit = this.onSubmit.bind(this);
 		this.changeActiveSide = this.changeActiveSide.bind(this);
 		this.onProceedPayment = this.onProceedPayment.bind(this);
 	}
@@ -292,11 +276,6 @@ class Card extends Component {
 		if (value.length <= 3 && (/\d/.test(inputSymbol) || /^$/.test(inputSymbol))) {
 			this.setState({ cvc: value });
 		} else { event.preventDefault() }
-	}
-
-	onSubmit(event) {
-		this.changeActiveSide();
-		event.preventDefault();
 	}
 
 	onProceedPayment() {
