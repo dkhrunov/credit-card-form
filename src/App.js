@@ -8,7 +8,6 @@ import './App.css';
 import Fade from 'react-reveal/Fade';
 import Zoom from 'react-reveal/Zoom';
 import Flip from 'react-reveal/Flip';
-import Slide from 'react-reveal/Slide';
 // Images
 import logo from'./logo.png';
 import mir from'./mir.png';
@@ -26,6 +25,20 @@ const Services = {
 	mastercard: <img src={mastercard} alt="" width="100" height="80"/>,
 	unionPay: <img src={unionPay} alt="" width="80" height="60"/>
 }
+
+const withAnimation = (Component, AnimationWrapper) => 
+	({ delay=0, duration=1000, when, left=false, right=false, top=false, bottom=false, ...other }) =>
+		<AnimationWrapper
+			delay={delay}
+			duration={duration}
+			when={when}
+			left={left}
+			right={right}
+			top={top}
+			bottom={bottom}
+		>
+			<Component { ...other }/>
+		</AnimationWrapper>
 
 const Input = ({ className, id, value, pattern, placeholder, width, onChange, children }) =>
 	<div className={className}>
@@ -49,6 +62,9 @@ const Button = ({ className, type, onClick, children }) =>
 	<button className={className} type={type} onClick={onClick}>
 		{children}
 	</button>
+
+const ButtonWithAnimationZoom = withAnimation(Button, Zoom);
+const ButtonWithAnimationFade = withAnimation(Button, Fade);
 
 const FrontSide = ({ creditNum, expires, cardholder, isAllFieldsFrontFilled, paymentSystem, changeActiveSide, onChangeCardNum, onChangeExpires, onChangeCardholder }) =>
 	<div className="card">
@@ -93,20 +109,22 @@ const FrontSide = ({ creditNum, expires, cardholder, isAllFieldsFrontFilled, pay
 					Cardholder name
 				</Input>
 				<div className="card__change-side">
-					<Zoom when={isAllFieldsFrontFilled} duration={500}>
-						<Button
-							className="cvc-btn"
-							type="submit"
-							onClick={changeActiveSide}
-						>
-							CVC 
-							<FontAwesomeIcon icon={faSync} />
-						</Button>
-					</Zoom>
+					<ButtonWithAnimationZoom
+						when={isAllFieldsFrontFilled}
+						duration={500}
+						className="cvc-btn"
+						type="submit"
+						onClick={changeActiveSide}
+					>
+						CVC 
+						<FontAwesomeIcon icon={faSync} />
+					</ButtonWithAnimationZoom>
 				</div>
 			</div>
 		</div>
 	</div>
+
+const FrontSideWithAnimationFade = withAnimation(FrontSide, Fade);
 
 const BackSide = ({ cvc, isCvcFilled, onChangeCvcNum, changeActiveSide, onProceedPayment }) =>
 	<div className="row" >
@@ -136,17 +154,32 @@ const BackSide = ({ cvc, isCvcFilled, onChangeCvcNum, changeActiveSide, onProcee
 			</div>
 		</div>
 		<div className="card-btn__approval">
-			<Slide when={isCvcFilled} left>
-				<Button
-					className="card-btn approval-btn"
-					type="button"
-					onClick={onProceedPayment}
-				>
-					Proceed payment
-				</Button>
-			</Slide>
+			<ButtonWithAnimationFade
+				when={isCvcFilled}
+				left
+				className="card-btn approval-btn"
+				type="button"
+				onClick={onProceedPayment}
+			>
+				Proceed payment
+			</ButtonWithAnimationFade>
 		</div>
 	</div>
+
+const BackSideWithAnimationFlip = withAnimation(BackSide, Flip);
+
+const AcceptedPayment = () =>
+	<div className="success">
+		<FontAwesomeIcon 
+			icon={faCheckDouble}
+			color="green"
+			style={{ paddingBottom: "20px", fontSize: "1.2em" }}
+		/>
+		<h2>Thank you!</h2>
+		<h3>Payment accepted</h3>
+	</div>
+
+const AcceptedPaymentAnimationZoom = withAnimation(AcceptedPayment, Zoom);
 
 class Card extends Component {
 	constructor(props) {
@@ -299,43 +332,31 @@ class Card extends Component {
 
 		if (activeSide === 'front' && !paymentSuccess) {
 			ViewSide = 
-				<Fade duration={1000} left>
-					<FrontSide
-						creditNum={creditNum}
-						expires={expires}
-						cardholder={cardholder}
-						isAllFieldsFrontFilled={isAllFieldsFrontFilled}
-						paymentSystem={paymentSystem}
-						changeActiveSide={this.changeActiveSide}
-						onChangeCardNum={this.onChangeCardNum}
-						onChangeExpires={this.onChangeExpires}
-						onChangeCardholder={this.onChangeCardholder}
-					/>
-				</Fade>
+				<FrontSideWithAnimationFade
+					duration={1000}
+					left
+					creditNum={creditNum}
+					expires={expires}
+					cardholder={cardholder}
+					isAllFieldsFrontFilled={isAllFieldsFrontFilled}
+					paymentSystem={paymentSystem}
+					changeActiveSide={this.changeActiveSide}
+					onChangeCardNum={this.onChangeCardNum}
+					onChangeExpires={this.onChangeExpires}
+					onChangeCardholder={this.onChangeCardholder}
+				/>
 		} else if (activeSide === 'back' && !paymentSuccess) {
 			ViewSide =
-				<Flip left>
-					<BackSide
-						cvc={cvc}
-						isCvcFilled={isCvcFilled}
-						onChangeCvcNum={this.onChangeCvcNum}
-						changeActiveSide={this.changeActiveSide}
-						onProceedPayment={this.onProceedPayment}
-					/>
-				</Flip>
+				<BackSideWithAnimationFlip
+					left
+					cvc={cvc}
+					isCvcFilled={isCvcFilled}
+					onChangeCvcNum={this.onChangeCvcNum}
+					changeActiveSide={this.changeActiveSide}
+					onProceedPayment={this.onProceedPayment}
+				/>
 		} else {
-			ViewSide =
-				<Zoom duration={1000} top>
-					<div className="success">
-						<FontAwesomeIcon 
-							icon={faCheckDouble}
-							color="green"
-							style={{ paddingBottom: "20px", fontSize: "1.2em" }}
-						/>
-						<h2>Thank you!</h2>
-						<h3>Payment accepted</h3>
-					</div>
-				</Zoom>
+			ViewSide = <AcceptedPaymentAnimationZoom duration={1000} top/>
 		}
 
 
